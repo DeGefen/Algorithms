@@ -1,51 +1,50 @@
 #include "Graph.h"
 #include <iostream>
 #include <stdlib.h>
+#include "Using.h"
 
-#define EXCEPTION 1
 
-
-void Graph::MakeEmptyGraph()
+void Graph::MakeEmptyGraph(int i_NumOfvertices)
 {
-	neighborlist = new NeighborList[numOfVertices];
+	m_NumOfVertices = i_NumOfvertices;
+	m_Neighborlist = new NeighborList[m_NumOfVertices];
 }
 
-bool Graph::IsAdjacent(int u, int v)
+bool Graph::IsAdjacent(int i_U, int i_V)
 {
-	auto it = neighborlist[u - 1].find(v);
-	if (it != neighborlist[u - 1].end())
-		return true;
-	else
-		return false;
+	auto it = m_Neighborlist[i_U - 1].find(i_V);
+
+	return (it != m_Neighborlist[i_U - 1].end());	
 }
 
-NeighborList Graph::GetAdjList(int u)
+NeighborList Graph::GetAdjList(int i_U)
 {
-	return neighborlist[u - 1];
+	return m_Neighborlist[i_U - 1];
 }
-void Graph::AddEdge(int u, int v)
+
+void Graph::AddEdge(int i_U, int i_V)
 {
-	//std::cout << "CHECK " << u << " " << v << std::endl;
-	neighborlist[u - 1].insert({v ,edgeType::undefiend });
+	m_Neighborlist[i_U - 1].insert({ i_V ,edgeType::undefined });
 }
-void Graph::RemoveEdge(int u, int v)
+
+void Graph::RemoveEdge(int i_U, int i_V)
 {
-	neighborlist[u - 1].erase(v);
+	m_Neighborlist[i_U - 1].erase(i_V);
 }
-void Graph::Fill(Edge* edges, int m)
+
+void Graph::Fill(Edge* i_Edges, int i_M)
 {
 	try
 	{
-		for (int i = 0; i < m; i++)
+		for (int i = 0; i < i_M; i++)
 		{
-			if (IsAdjacent(edges[i].in, edges[i].out))
+			if (IsAdjacent(i_Edges[i].in, i_Edges[i].out))
 			{
 				throw EXCEPTION;
 			}
 			else
 			{
-				
-				AddEdge(edges[i].in, edges[i].out);
+				AddEdge(i_Edges[i].in, i_Edges[i].out);
 			}
 		}
 	}
@@ -54,137 +53,147 @@ void Graph::Fill(Edge* edges, int m)
 		std::cout << "invalid input" << std::endl;
 		exit(1);
 	}
-	
+
 }
+
 void Graph::printGraph()
 {
-	for (int i = 0; i < numOfVertices; i++)
+	for (int i = 0; i < m_NumOfVertices; i++)
 	{
-		for (const auto& pair : neighborlist[i]) {
-			std::cout << i+ 1 << " " << pair.first << std::endl;
+		for (const auto& pair : m_Neighborlist[i]) 
+		{
+			std::cout << i + 1 << " " << pair.first << std::endl;
 		}
 	}
 }
 
 void Graph::DFS_Create()
 {
-    if (!dfs)
-        {
-        dfs = new DFS(*this);
-        }
+	if (!dfs)
+	{
+		dfs = new DFS(*this);
+	}
 }
 
 Stack Graph::DFS_Finish()
 {
-    DFS_Create();
-    return dfs->GetFinishOrder();
+	DFS_Create();
+
+	return dfs->GetFinishOrder();
 }
 
 void Graph::DFS::run()
 {
-	for (int i = 0; i < graph.numOfVertices; i++)
+	for (int i = 0; i < graph.m_NumOfVertices; i++)
 	{
 		color[i] = vertesType::white;
 	}
-	for (int i = 0; i < graph.numOfVertices; i++)
-    {
-        if (color[i] == vertesType::white) {
-            Visit(i);
-        }
-    }
+	for (int i = 0; i < graph.m_NumOfVertices; i++)
+	{
+		if (color[i] == vertesType::white) 
+		{
+			Visit(i);
+		}
+	}
 }
 
-void Graph::DFS::run(Stack &order) {
-    for (int i = 0; i < graph.numOfVertices; i++)
-    {
-        color[i] = vertesType::white;
-    }
-    int v;
-    while (!order.empty())
-    {
-        v = order.top();
-        order.pop();
-        if (color[v] == vertesType::white) {
-            Visit(v);
-        }
-    }
-}
-
-void Graph::DFS::Visit(int u)
+void Graph::DFS::run(Stack& io_Order) 
 {
-	color[u] = vertesType::gray;
-	for (auto& pair : graph.neighborlist[u])
+	int v;
+	for (int i = 0; i < graph.m_NumOfVertices; i++)
+	{
+		color[i] = vertesType::white;
+	}
+	
+	while (!io_Order.empty())
+	{
+		v = io_Order.top();
+		io_Order.pop();
+		if (color[v] == vertesType::white) 
+		{
+			Visit(v);
+		}
+	}
+}
+
+void Graph::DFS::Visit(int i_U)
+{
+	color[i_U] = vertesType::gray;
+	for (auto& pair : graph.m_Neighborlist[i_U])
 	{
 		if (color[pair.first - 1] == vertesType::white)
 		{
 			pair.second = edgeType::tree;
 			Visit(pair.first);
-		}	
+		}
 	}
-	color[u] = vertesType::black;
-    finishOrder.push(u + 1);
+	color[i_U] = vertesType::black;
+	finishOrder.push(i_U + 1);
 }
 
 void Graph::GetInput()
 {
-    try
-    {
-        int n, m;
-        std::cout << "Please enter number of vertices: ";
-        std::cin >> n;
-        if (n <= 0)
-        {
-            throw EXCEPTION;
-        }
-        MakeEmptyGraph(n);
-        std::cout << "Please enter number of edges: ";
-        std::cin >> m;
-        if (m < 0 || m > n* (n - 1))
-        {
-            throw EXCEPTION;
-        }
-        for (int u, v, i = 0; i < m; i++)
-        {
-            std::cin >> u >> v;
-            if (v > n || u > n || u == v || IsAdjacent(u,v))
-            {
-              throw EXCEPTION;
-            }
-            AddEdge(u, v);
-        }
-    }
-    catch (...)
-    {
-        std::cout << "invalid input" << std::endl;
-        exit(1);
-    }
+	try
+	{
+		int n, m;
+		std::cout << "Please enter number of vertices: ";
+		std::cin >> n;
+		if (n <= 0)
+		{
+			throw EXCEPTION;
+		}
+		MakeEmptyGraph(n);
+		std::cout << "Please enter number of edges: ";
+		std::cin >> m;
+		if (m < 0 || m > n* (n - 1))
+		{
+			throw EXCEPTION;
+		}
+		for (int u, v, i = 0; i < m; i++)
+		{
+			std::cin >> u >> v;
+			if (v > n || u > n || u == v || IsAdjacent(u, v))
+			{
+				throw EXCEPTION;
+			}
+			AddEdge(u, v);
+		}
+	}
+	catch (...)
+	{
+		std::cout << "invalid input" << std::endl;
+		exit(1);
+	}
 }
 
-void Graph::CopyGraph(const Graph &graph, bool transpose)
+void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 {
-    if (!transpose)
-    {
-        for (int i = 0; i < numOfVertices; i++)
-        {
-            neighborlist[i] = std::move(graph.neighborlist[i]);
-        }
-    }
-    if (transpose)
-    {
-        for (int i = 0; i < numOfVertices; i++)
-        {
-            for (const auto& pair : graph.neighborlist[i]) {
-                AddEdge(pair.first, i);
-            }
-        }
-    }
+	if (!i_transpose)
+	{
+		for (int i = 0; i < m_NumOfVertices; i++)
+		{
+			m_Neighborlist[i] = std::move(i_Graph.m_Neighborlist[i]);
+		}
+	}
+	else
+	{
+		for (int i = 0; i < m_NumOfVertices; i++)
+		{
+			for (const auto& pair : i_Graph.m_Neighborlist[i])
+			{
+				AddEdge(pair.first, i);
+			}
+		}
+	}
 }
 
-void Graph::ResetEdgeTypes() {
-    for (int i = 0; i < numOfVertices; i++)
-    {
-        for (auto& pair : neighborlist[i]) {
-            pair.second = edgeType::undefiend;
-        }
-    }
+void Graph::ResetEdgeTypes() 
+{
+	for (int i = 0; i < m_NumOfVertices; i++)
+	{
+		for (auto& pair : m_Neighborlist[i]) 
+		{
+			pair.second = edgeType::undefined;
+		}
+	}
 }
