@@ -136,7 +136,7 @@ void Graph::GetInput()
         {
             throw EXCEPTION;
         }
-        MakeEmptyGraph(n);
+        MakeEmptyGraph();
         std::cout << "Please enter number of edges: ";
         std::cin >> m;
         if (m < 0 || m > n* (n - 1))
