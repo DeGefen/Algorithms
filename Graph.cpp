@@ -132,7 +132,6 @@ void Graph::DFS::Visit(int i_U)
 }
 
 void Graph::GetInput()
-{
 	try
 	{
 		int n, m;
