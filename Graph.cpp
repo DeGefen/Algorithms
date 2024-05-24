@@ -67,11 +67,11 @@ void Graph::printGraph()
 	}
 }
 
-void Graph::DFS_Create()
+void Graph::DFS_Create(Stack * order = nullptr)
 {
 	if (!dfs)
 	{
-		dfs = new DFS(*this);
+		dfs = new DFS(*this, order);
 	}
 }
 
@@ -80,6 +80,13 @@ Stack Graph::DFS_Finish()
 	DFS_Create();
 
 	return dfs->GetFinishOrder();
+}
+
+int* Graph::DFS_transpose()
+{
+	DFS_Create();
+
+	return dfs->GetConnectArray();
 }
 
 void Graph::DFS::run()
@@ -92,12 +99,12 @@ void Graph::DFS::run()
 	{
 		if (color[i] == vertesType::white) 
 		{
-			Visit(i);
+			Visit(i, i);
 		}
 	}
 }
 
-void Graph::DFS::run(Stack& io_Order) 
+void Graph::DFS::run(Stack* io_Order) 
 {
 	int v;
 	for (int i = 0; i < graph.m_NumOfVertices; i++)
@@ -105,18 +112,18 @@ void Graph::DFS::run(Stack& io_Order)
 		color[i] = vertesType::white;
 	}
 	
-	while (!io_Order.empty())
+	while (!io_Order->empty())
 	{
-		v = io_Order.top();
-		io_Order.pop();
+		v = io_Order->top();
+		io_Order->pop();
 		if (color[v] == vertesType::white) 
 		{
-			Visit(v);
+			Visit(v, v);
 		}
 	}
 }
 
-void Graph::DFS::Visit(int i_U)
+void Graph::DFS::Visit(int i_U, int i_V)
 {
 	color[i_U] = vertesType::gray;
 	for (auto& pair : graph.m_Neighborlist[i_U])
@@ -124,46 +131,14 @@ void Graph::DFS::Visit(int i_U)
 		if (color[pair.first - 1] == vertesType::white)
 		{
 			pair.second = edgeType::tree;
-			Visit(pair.first);
+			Visit(pair.first, i_V);
 		}
 	}
 	color[i_U] = vertesType::black;
+	connectArray[i_U] = i_V;
 	finishOrder.push(i_U + 1);
 }
 
-void Graph::GetInput()
-	try
-	{
-		int n, m;
-		std::cout << "Please enter number of vertices: ";
-		std::cin >> n;
-		if (n <= 0)
-		{
-			throw EXCEPTION;
-		}
-		MakeEmptyGraph(n);
-		std::cout << "Please enter number of edges: ";
-		std::cin >> m;
-		if (m < 0 || m > n* (n - 1))
-		{
-			throw EXCEPTION;
-		}
-		for (int u, v, i = 0; i < m; i++)
-		{
-			std::cin >> u >> v;
-			if (v > n || u > n || u == v || IsAdjacent(u, v))
-			{
-				throw EXCEPTION;
-			}
-			AddEdge(u, v);
-		}
-	}
-	catch (...)
-	{
-		std::cout << "invalid input" << std::endl;
-		exit(1);
-	}
-}
 
 void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 {
@@ -194,5 +169,40 @@ void Graph::ResetEdgeTypes()
 		{
 			pair.second = edgeType::undefined;
 		}
+	}
+}
+
+Edge* Graph::GetInput(int& n, int& m) 
+{
+	try
+	{
+		std::cout << "Please enter number of vertices: ";
+		std::cin >> n;
+		if (n <= 0)
+		{
+			throw EXCEPTION;
+		}
+		std::cout << "Please enter number of edges: ";
+		std::cin >> m;
+		if (m < 0 || m > n* (n - 1))
+		{
+			throw EXCEPTION;
+		}
+		Edge* edges = new Edge[m];
+		for (int i = 0; i < m; i++)
+		{
+			std::cin >> edges[i].in >> edges[i].out;
+			if (edges[i].in > n || edges[i].out > n || edges[i].in == edges[i].out)
+			{
+				delete[] edges;
+				throw EXCEPTION;
+			}
+		}
+		return edges;
+	}
+	catch (...)
+	{
+		std::cout << "invalid input" << std::endl;
+		exit(1);
 	}
 }

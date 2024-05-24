@@ -14,36 +14,53 @@ protected:
 	int m_NumOfEdges;
 	NeighborList* m_Neighborlist;
 	void MakeEmptyGraph(int numOfvertices);
-	void GetInput();
 	void CopyGraph(const Graph& graph, bool transpose);
 	void ResetEdgeTypes();
 	Stack DFS_Finish();
-	void DFS_Create();
+	int* DFS_transpose();
+	void DFS_Create(Stack* order = nullptr);
 	class DFS
 	{
 		enum vertesType { white, gray, black };
+
 		Stack finishOrder;
-		int* color;
+		int * color;
+		int * connectArray;
 		Graph& graph;
 
 		void run();
-		void run(Stack& order);
-		void Visit(int u);
+		void run(Stack* order);
+		void Visit(int u, int v);
 	public:
-		DFS(Graph& graph) : graph(graph)
+
+		DFS(Graph& graph, Stack *order = nullptr) : graph(graph)
 		{
 			color = new int[graph.m_NumOfVertices];
-			void run();
+			connectArray = new int[graph.m_NumOfVertices];
+			if (order)
+			{
+				run(order);
+			}
+			else
+			{
+				run();
+			}
 		}
-
-		Stack GetFinishOrder() {
+		Stack GetFinishOrder() 
+		{
 			return finishOrder;
 		}
-
-		~DFS() {
+		int* GetConnectArray()
+		{
+			return connectArray;
+		}
+		~DFS() 
+		{
 			delete[] color;
+			delete[] connectArray;
 		}
 	};
+
 
 	friend DFS;
 	friend SuperGraph;
@@ -66,6 +83,7 @@ public:
 	void RemoveEdge(int u, int v);
 	void Fill(Edge* edges, int m);
 	void printGraph();
+	static Edge* GetInput(int& n, int& m);
 	~Graph() 
 	{
 		delete dfs;
