@@ -6,7 +6,6 @@
 #define EXCEPTION 1
 
 
-
 Edge* GetInput(int& n, int& m) {
 	try 
 	{
@@ -48,7 +47,6 @@ int main() {
 	Graph myGraph(n, m);
 	myGraph.Fill(edges, m);
 	//myGraph.printGraph();
-
 
 	return 0;
 }

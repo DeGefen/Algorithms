@@ -9,11 +9,11 @@ protected:
 	int* stronglyConnectedComponents;
 	int* lastEdgeAdded;
 
+    void BuildSuperGraph(Graph &graph);
 
 public:
-	SuperGraph()
+	SuperGraph(Graph &graph)
 	{
-		stronglyConnectedComponents = new int(numOfVertices);
-		lastEdgeAdded = new int(numOfVertices);
+        BuildSuperGraph(graph);
 	}
 };
