@@ -1,21 +1,16 @@
 #pragma once
 #include "Graph.h"
-#include <iostream>
-#include <stdlib.h>
 #include "Using.h"
 
-
-class SuperGraph : protected Graph {
-protected:
-	int* stronglyConnectedComponents;
-	int* lastEdgeAdded;
-
-	
-
+class SuperGraph : protected Graph
+{
 public:
-	static void BuildSuperGraph(Graph& graph);
+
+	//input: graph
+	void BuildSuperGraph(Graph& graph);//build the super graph of given graph
 	SuperGraph(Graph& graph)
 	{
 		BuildSuperGraph(graph);
 	}
+	void printStats();
 };

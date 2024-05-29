@@ -1,8 +1,4 @@
 #include "Graph.h"
-#include <iostream>
-#include <stdlib.h>
-#include "Using.h"
-
 
 void Graph::MakeEmptyGraph(int i_NumOfvertices)
 {
@@ -25,26 +21,28 @@ NeighborList Graph::GetAdjList(int i_U)
 void Graph::AddEdge(int i_U, int i_V)
 {
 	m_Neighborlist[i_U - 1].insert({ i_V ,edgeType::undefined });
+	m_NumOfEdges++;
 }
 
 void Graph::RemoveEdge(int i_U, int i_V)
 {
 	m_Neighborlist[i_U - 1].erase(i_V);
+	m_NumOfEdges--;
 }
 
-void Graph::Fill(Edge* i_Edges, int i_M)
+void Graph::Fill(Edge* io_Edges, int i_M)
 {
 	try
 	{
 		for (int i = 0; i < i_M; i++)
 		{
-			if (IsAdjacent(i_Edges[i].in, i_Edges[i].out))
+			if (IsAdjacent(io_Edges[i].in, io_Edges[i].out))
 			{
 				throw EXCEPTION;
 			}
 			else
 			{
-				AddEdge(i_Edges[i].in, i_Edges[i].out);
+				AddEdge(io_Edges[i].in, io_Edges[i].out);
 			}
 		}
 	}
@@ -53,10 +51,10 @@ void Graph::Fill(Edge* i_Edges, int i_M)
 		std::cout << "invalid input" << std::endl;
 		exit(1);
 	}
-
+	delete[] io_Edges;
 }
 
-void Graph::printGraph()
+void Graph::PrintGraph()
 {
 	for (int i = 0; i < m_NumOfVertices; i++)
 	{
@@ -67,73 +65,85 @@ void Graph::printGraph()
 	}
 }
 
-void Graph::DFS_Create(Stack* order)
+void Graph::DFSCreate(Stack* order)
 {
 	if (!dfs)
 	{
-		 new DFS(*this, order);
-		//dfs = 
+		dfs = new DFS(*this, order);
+		 
 	}
 }
 
-Stack Graph::DFS_With_Finish()
+Stack Graph::DFSWithFinish()
 {
-	DFS_Create();
+	DFSCreate();
 
 	return dfs->GetFinishOrder();
 }
 
-
-
-void Graph::DFS::run()
+void Graph::DFS::Run()
 {
-	for (int i = 0; i < graph.m_NumOfVertices; i++)
+	for (int i = 0; i < m_Graph.m_NumOfVertices; i++)
 	{
-		color[i] = vertesType::white;
+		m_Color[i] = vertesType::white;
 	}
-	for (int i = 0; i < graph.m_NumOfVertices; i++)
+
+	for (int i = 1; i <= m_Graph.m_NumOfVertices; i++)
 	{
-		if (color[i] == vertesType::white)
+		if (m_Color[i-1] == vertesType::white)
 		{
-			Visit(i, i);
+			Visit(i);
 		}
 	}
 }
 
-void Graph::DFS::run(Stack* io_Order)
+void Graph::DFS::Run(Stack* io_Order)
 {
 	int v;
-	for (int i = 0; i < graph.m_NumOfVertices; i++)
+	for (int i = 0; i < m_Graph.m_NumOfVertices; i++)
 	{
-		color[i] = vertesType::white;
+		m_Color[i] = vertesType::white;
 	}
 
 	while (!io_Order->empty())
 	{
 		v = io_Order->top();
 		io_Order->pop();
-		if (color[v] == vertesType::white)
+		if (m_Color[v-1] == vertesType::white)
 		{
-			Visit(v, v);
+			m_Graph.m_ComponentsCount++;
+			Visit(v, m_Graph.m_ComponentsCount, SECONDDFS);
 		}
 	}
 }
 
-void Graph::DFS::Visit(int i_U, int i_V)
+void Graph::DFS::Visit(int i_U, int root = NULLROOT, bool second = !SECONDDFS)
 {
-	color[i_U-1] = vertesType::gray;
-	for (auto& pair : graph.m_Neighborlist[i_U])
+	if (second)
 	{
-		if (color[pair.first - 1] == vertesType::white)
+		m_Graph.m_ComponentsOrder.push(i_U);
+	}
+
+	m_Color[i_U - 1] = vertesType::gray;
+	for (auto& pair : m_Graph.m_Neighborlist[i_U - 1])
+	{
+		if (m_Color[pair.first - 1] == vertesType::white)
 		{
 			pair.second = edgeType::tree;
-			Visit(pair.first, i_V);
+			Visit(pair.first, root, second);
 		}
 	}
-	color[i_U] = vertesType::black;
-	finishOrder.push(i_U + 1);
-}
 
+	m_Color[i_U - 1] = vertesType::black;
+	if (second)
+	{
+		m_Graph.m_ComponentsArray[i_U - 1] = root;
+	}
+	else
+	{
+		m_FinishOrder.push(i_U);
+	}
+}
 
 void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 {
@@ -150,19 +160,8 @@ void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 		{
 			for (const auto& pair : i_Graph.m_Neighborlist[i])
 			{
-				AddEdge(pair.first, i);
+				AddEdge(pair.first, i+1);
 			}
-		}
-	}
-}
-
-void Graph::ResetEdgeTypes()
-{
-	for (int i = 0; i < m_NumOfVertices; i++)
-	{
-		for (auto& pair : m_Neighborlist[i])
-		{
-			pair.second = edgeType::undefined;
 		}
 	}
 }
@@ -200,4 +199,19 @@ Edge* Graph::GetInput(int& n, int& m)
 		std::cout << "invalid input" << std::endl;
 		exit(1);
 	}
+}
+
+int* Graph::GetComponetsArray()
+{
+	return m_ComponentsArray;
+}
+
+Queue Graph::GetComponetsOrder()
+{
+	return m_ComponentsOrder;
+}
+
+int Graph::GetComponetsCount()
+{
+	return m_ComponentsCount;
 }

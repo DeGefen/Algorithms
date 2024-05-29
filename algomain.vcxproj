@@ -129,7 +129,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graph.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="SuperGraph.h" />
     <ClInclude Include="Using.h" />
   </ItemGroup>
