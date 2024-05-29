@@ -10,9 +10,10 @@ protected:
 	int* stronglyConnectedComponents;
 	int* lastEdgeAdded;
 
-	void BuildSuperGraph(Graph& graph);
+	
 
 public:
+	static void BuildSuperGraph(Graph& graph);
 	SuperGraph(Graph& graph)
 	{
 		BuildSuperGraph(graph);

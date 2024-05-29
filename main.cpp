@@ -3,6 +3,7 @@
 #include "Graph.h"
 #include <array>
 #include "Using.h"
+#include "SuperGraph.h"
 
 #define EXCEPTION 1
 
@@ -13,7 +14,9 @@ int main() {
 
 	Graph myGraph(n, m);
 	myGraph.Fill(edges, m);
-	myGraph.printGraph();
+	
+	std::cout << std::endl;
+	SuperGraph::BuildSuperGraph(myGraph);
 
 	return 0;
 }

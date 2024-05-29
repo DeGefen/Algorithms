@@ -14,7 +14,7 @@ bool Graph::IsAdjacent(int i_U, int i_V)
 {
 	auto it = m_Neighborlist[i_U - 1].find(i_V);
 
-	return (it != m_Neighborlist[i_U - 1].end());	
+	return (it != m_Neighborlist[i_U - 1].end());
 }
 
 NeighborList Graph::GetAdjList(int i_U)
@@ -60,34 +60,30 @@ void Graph::printGraph()
 {
 	for (int i = 0; i < m_NumOfVertices; i++)
 	{
-		for (const auto& pair : m_Neighborlist[i]) 
+		for (const auto& pair : m_Neighborlist[i])
 		{
 			std::cout << i + 1 << " " << pair.first << std::endl;
 		}
 	}
 }
 
-void Graph::DFS_Create(Stack * order = nullptr)
+void Graph::DFS_Create(Stack* order)
 {
 	if (!dfs)
 	{
-		dfs = new DFS(*this, order);
+		 new DFS(*this, order);
+		//dfs = 
 	}
 }
 
-Stack Graph::DFS_Finish()
+Stack Graph::DFS_With_Finish()
 {
 	DFS_Create();
 
 	return dfs->GetFinishOrder();
 }
 
-int* Graph::DFS_transpose()
-{
-	DFS_Create();
 
-	return dfs->GetConnectArray();
-}
 
 void Graph::DFS::run()
 {
@@ -97,26 +93,26 @@ void Graph::DFS::run()
 	}
 	for (int i = 0; i < graph.m_NumOfVertices; i++)
 	{
-		if (color[i] == vertesType::white) 
+		if (color[i] == vertesType::white)
 		{
 			Visit(i, i);
 		}
 	}
 }
 
-void Graph::DFS::run(Stack* io_Order) 
+void Graph::DFS::run(Stack* io_Order)
 {
 	int v;
 	for (int i = 0; i < graph.m_NumOfVertices; i++)
 	{
 		color[i] = vertesType::white;
 	}
-	
+
 	while (!io_Order->empty())
 	{
 		v = io_Order->top();
 		io_Order->pop();
-		if (color[v] == vertesType::white) 
+		if (color[v] == vertesType::white)
 		{
 			Visit(v, v);
 		}
@@ -125,7 +121,7 @@ void Graph::DFS::run(Stack* io_Order)
 
 void Graph::DFS::Visit(int i_U, int i_V)
 {
-	color[i_U] = vertesType::gray;
+	color[i_U-1] = vertesType::gray;
 	for (auto& pair : graph.m_Neighborlist[i_U])
 	{
 		if (color[pair.first - 1] == vertesType::white)
@@ -135,7 +131,6 @@ void Graph::DFS::Visit(int i_U, int i_V)
 		}
 	}
 	color[i_U] = vertesType::black;
-	connectArray[i_U] = i_V;
 	finishOrder.push(i_U + 1);
 }
 
@@ -161,18 +156,18 @@ void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 	}
 }
 
-void Graph::ResetEdgeTypes() 
+void Graph::ResetEdgeTypes()
 {
 	for (int i = 0; i < m_NumOfVertices; i++)
 	{
-		for (auto& pair : m_Neighborlist[i]) 
+		for (auto& pair : m_Neighborlist[i])
 		{
 			pair.second = edgeType::undefined;
 		}
 	}
 }
 
-Edge* Graph::GetInput(int& n, int& m) 
+Edge* Graph::GetInput(int& n, int& m)
 {
 	try
 	{
