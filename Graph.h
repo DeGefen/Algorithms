@@ -9,7 +9,7 @@ protected:
 	enum edgeType { tree, back, forward, cross, undefined}; //enum for edge classification
 	int m_NumOfVertices = 0; //Number of Vertices
 	int m_NumOfEdges = 0; //Number of Edges
-	int* m_ComponentsArray = nullptr; //Components connections Array.
+	Vertex* m_ComponentsArray = nullptr; //Components connections Array.
 	int m_ComponentsCount = 0; //Number of Components
 	Queue m_ComponentsOrder; //order of vertices in teh components of second DFS
 	NeighborList* m_NeighborList = nullptr; //graph neighbor list
@@ -29,7 +29,7 @@ protected:
 		enum vertexType { white, gray, black };//enum for vertices classification
 
 		Stack m_FinishOrder;//finish order stack of vertices
-		int* m_Color = nullptr;//color array as in DFS algorithm
+		Vertex* m_Color = nullptr;//color array as in DFS algorithm
 		Graph& m_Graph;//graph that the algorithm is running on
 		
 		void Run(); //run DFS in regular order
@@ -43,11 +43,11 @@ protected:
 	public:
 		DFS(Graph& graph, Stack* order = nullptr) : m_Graph(graph)
 		{
-			m_Color = new int[graph.m_NumOfVertices];
+			m_Color = new Vertex[graph.m_NumOfVertices];
 			if (order)
 			{
 				graph.m_ComponentsCount = 0;
-				graph.m_ComponentsArray = new int[graph.m_NumOfVertices];
+				graph.m_ComponentsArray = new Vertex[graph.m_NumOfVertices];
 				Run(order);
 			}
 			else
@@ -78,7 +78,7 @@ public:
 		CopyGraph(graph, transpose);
 	}
 
-	int* GetComponentsArray() const;
+	Vertex * GetComponentsArray() const;
 	//return the data member array
 
 	Queue GetComponentsOrder() const;

@@ -59,13 +59,19 @@ void Graph::Fill(Edges io_Edges)
 
 void Graph::PrintGraph() const
 {
-	for (int i = 1; i <= m_NumOfVertices; i++)
-	{
-		for (const auto& pair : GetAdjList(i))
-		{
-			std::cout << i << " " << pair.first << std::endl;
-		}
-	}
+    try
+    {
+        for (Vertex v = 1; v <= m_NumOfVertices; v++) {
+            for (const auto &pair: GetAdjList(v)) {
+                std::cout << v << " " << pair.first << std::endl;
+            }
+        }
+    }
+    catch (...)
+    {
+        std::cout << "Error: " << std::endl;
+        exit(1);
+    }
 }
 
 void Graph::PrintInfo() const
@@ -84,29 +90,29 @@ void Graph::DFSCreate(Stack* order)
 
 void Graph::DFS::Run()
 {
-	for (int i = 0; i < m_Graph.m_NumOfVertices; i++)
+	for (Vertex v = 1; v <= m_Graph.m_NumOfVertices; v++)
 	{
-		m_Color[i] = vertexType::white;
+		m_Color[v - 1] = vertexType::white;
 	}
 
-	for (int i = 1; i <= m_Graph.m_NumOfVertices; i++)
+	for (Vertex v = 1; v <= m_Graph.m_NumOfVertices; v++)
 	{
-		if (m_Color[i-1] == vertexType::white)
+		if (m_Color[v - 1] == vertexType::white)
 		{
-			Visit(i);
+			Visit(v);
 		}
 	}
 }
 
 void Graph::DFS::Run(Stack* io_Order)
 {
-    Vertex v;
-	for (int i = 0; i < m_Graph.m_NumOfVertices; i++)
+	for (Vertex v = 1; v <= m_Graph.m_NumOfVertices; v++)
 	{
-		m_Color[i] = vertexType::white;
+		m_Color[v - 1] = vertexType::white;
 	}
 
-	while (!io_Order->empty())
+    Vertex v;
+    while (!io_Order->empty())
 	{
 		v = io_Order->top();
 		io_Order->pop();
@@ -150,18 +156,18 @@ void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 {
 	if (!i_transpose)
 	{
-		for (int i = 1; i <= m_NumOfVertices; i++)
+		for (Vertex v = 1; v <= m_NumOfVertices; v++)
 		{
-            GetAdjList(i) = std::move(i_Graph.GetAdjList(i));
+            GetAdjList(v) = std::move(i_Graph.GetAdjList(v));
 		}
 	}
 	else
 	{
-		for (int i = 1; i <= m_NumOfVertices; i++)
+		for (Vertex v = 1; v <= m_NumOfVertices; v++)
 		{
-			for (const auto& pair : i_Graph.GetAdjList(i))
+			for (const auto& pair : i_Graph.GetAdjList(v))
 			{
-				AddEdge(pair.first, i);
+				AddEdge(pair.first, v);
 			}
 		}
 	}
@@ -192,7 +198,7 @@ Edges Graph::GetInput(int& n, int& m)
 		for (int i = 0; i < m; i++)
 		{
 			std::cin >> edge.in >> edge.out;
-			if (edge.in > n || edge.out > n || edge.in == edge.out)
+			if (edge.in > n || edge.out > n || edge.in <= 0 || edge.out <= 0 || edge.in == edge.out)
             {
                 throw EXCEPTION;
             }

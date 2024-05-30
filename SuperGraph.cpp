@@ -12,7 +12,7 @@ void SuperGraph::BuildSuperGraph(Graph& graph)
     Vertex vertex;
     Vertex componentA;
     Vertex componentB;
-	int* lastFatherArray = new int[componentsAmount];
+	auto* lastFatherArray = new Vertex[componentsAmount];
 
 	std::fill(lastFatherArray, lastFatherArray+ componentsAmount, NULLVALUE);
 	MakeEmptyGraph(componentsAmount);
