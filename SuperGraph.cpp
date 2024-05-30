@@ -2,36 +2,34 @@
 
 void SuperGraph::BuildSuperGraph(Graph& graph)
 {
-	Stack order = graph.DFSWithFinish(); //first DFS run in regular order
+    graph.DFSCreate(); //first DFS run in regular order
+    Stack order = graph.m_DFS->GetFinishOrder();
 	Graph graphT(graph, TRANSPOSE); //builds transpose graph
-	graphT.DFSCreate(&order);//second DFS run with end order
-	int* componentsArray = graphT.GetComponetsArray();
-	Queue componentsOrder = graphT.GetComponetsOrder();
-	int componentsAmount = graphT.GetComponetsCount();
-	int vertex;
+	graphT.DFSCreate(&order);//second DFS run with reversed finish order
+	int* componentsArray = graphT.GetComponentsArray();
+	Queue componentsOrder = graphT.GetComponentsOrder();
+	int componentsAmount = graphT.GetComponentsCount();
+    Vertex vertex;
+    Vertex componentA;
+    Vertex componentB;
 	int* lastFatherArray = new int[componentsAmount];
 
-	std::fill(lastFatherArray, lastFatherArray+ componentsAmount, -1);
+	std::fill(lastFatherArray, lastFatherArray+ componentsAmount, NULLVALUE);
 	MakeEmptyGraph(componentsAmount);
 	while (!componentsOrder.empty())
 	{
 		vertex = componentsOrder.front();
-		for (auto& pair : graph.m_Neighborlist[vertex - 1])
+        componentsOrder.pop();
+        for (auto& pair : graph.m_NeighborList[vertex - 1])
 		{
-			if (componentsArray[pair.first - 1] != componentsArray[vertex - 1] && lastFatherArray[componentsArray[pair.first - 1] - 1] != componentsArray[vertex - 1])
+            componentA = componentsArray[vertex - 1];
+            componentB = componentsArray[pair.first - 1];
+			if (componentA != componentB && lastFatherArray[componentB - 1] != componentA)
 			{
-				
-				AddEdge(componentsArray[vertex - 1], componentsArray[pair.first - 1]);
-				lastFatherArray[componentsArray[pair.first - 1] - 1] = componentsArray[vertex - 1];
+				AddEdge(componentA, componentB);
+				lastFatherArray[componentB - 1] = componentA;
 			}
 		}
-
-		componentsOrder.pop();
 	}
 	delete[] lastFatherArray;
 }
-void SuperGraph::printStats()
-{
-	std::cout << m_NumOfVertices << " " << m_NumOfEdges;
-}
-

@@ -4,20 +4,25 @@
 #include <queue>
 #include <iostream>
 #include <stdlib.h>
+#include <exception>
 
 
-#define EXCEPTION 1 //some value to throw exception
-#define NULLROOT -1 //"null" equivalent of int for vetrices
+#define EXCEPTION std::exception() //throw exception
+#define NULLROOT (-1) //"null" equivalent of int for vertices
+#define NULLVALUE (-1) // //"null" value indication
 #define TRANSPOSE true //bool for transpose graph
-#define SECONDDFS true //bool for seconf DFS run in the algorithm
+#define SECONDDFS true //bool for second DFS run in the algorithm
 
-//edgee struct
+using Vertex = int;
+
+//edges struct
 struct Edge 
 {
-	int in; //source edge
-	int out; //destination edge
+    Vertex in = NULLVALUE; //source edge
+    Vertex out = NULLVALUE; //destination edge
 };
 
-using Stack = std::stack<int>;
-using NeighborList = std::map<int, int>;
-using Queue = std::queue<int>;
+using Stack = std::stack<Vertex>;
+using NeighborList = std::map<Vertex, int>;
+using Queue = std::queue<Vertex>;
+using Edges = std::queue<Edge>;

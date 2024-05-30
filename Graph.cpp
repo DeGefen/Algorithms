@@ -1,48 +1,52 @@
 #include "Graph.h"
 
-void Graph::MakeEmptyGraph(int i_NumOfvertices)
+void Graph::MakeEmptyGraph(int i_NumOfVertices)
 {
-	m_NumOfVertices = i_NumOfvertices;
-	m_Neighborlist = new NeighborList[m_NumOfVertices];
+	m_NumOfVertices = i_NumOfVertices;
+    m_NeighborList = new NeighborList[m_NumOfVertices];
 }
 
-bool Graph::IsAdjacent(int i_U, int i_V)
+NeighborList& Graph::GetAdjList(Vertex i_U) const
 {
-	auto it = m_Neighborlist[i_U - 1].find(i_V);
-
-	return (it != m_Neighborlist[i_U - 1].end());
+    return m_NeighborList[i_U - 1];
 }
 
-NeighborList Graph::GetAdjList(int i_U)
+bool Graph::IsAdjacent(Vertex i_U, Vertex i_V) const
 {
-	return m_Neighborlist[i_U - 1];
+	auto it = GetAdjList(i_U).find(i_V);
+
+	return (it != GetAdjList(i_U).end());
 }
 
-void Graph::AddEdge(int i_U, int i_V)
+
+void Graph::AddEdge(Vertex i_U, Vertex i_V)
 {
-	m_Neighborlist[i_U - 1].insert({ i_V ,edgeType::undefined });
+    GetAdjList(i_U).insert({i_V , edgeType::undefined });
 	m_NumOfEdges++;
 }
 
-void Graph::RemoveEdge(int i_U, int i_V)
+void Graph::RemoveEdge(Vertex i_U, Vertex i_V)
 {
-	m_Neighborlist[i_U - 1].erase(i_V);
+    GetAdjList(i_U).erase(i_V);
 	m_NumOfEdges--;
 }
 
-void Graph::Fill(Edge* io_Edges, int i_M)
+void Graph::Fill(Edges io_Edges)
 {
 	try
 	{
-		for (int i = 0; i < i_M; i++)
+        Edge edge;
+		while(!io_Edges.empty())
 		{
-			if (IsAdjacent(io_Edges[i].in, io_Edges[i].out))
+            edge = io_Edges.front();
+            io_Edges.pop();
+			if (IsAdjacent(edge.in, edge.out))
 			{
 				throw EXCEPTION;
 			}
 			else
 			{
-				AddEdge(io_Edges[i].in, io_Edges[i].out);
+				AddEdge(edge.in, edge.out);
 			}
 		}
 	}
@@ -51,46 +55,43 @@ void Graph::Fill(Edge* io_Edges, int i_M)
 		std::cout << "invalid input" << std::endl;
 		exit(1);
 	}
-	delete[] io_Edges;
 }
 
-void Graph::PrintGraph()
+void Graph::PrintGraph() const
 {
-	for (int i = 0; i < m_NumOfVertices; i++)
+	for (int i = 1; i <= m_NumOfVertices; i++)
 	{
-		for (const auto& pair : m_Neighborlist[i])
+		for (const auto& pair : GetAdjList(i))
 		{
-			std::cout << i + 1 << " " << pair.first << std::endl;
+			std::cout << i << " " << pair.first << std::endl;
 		}
 	}
 }
 
-void Graph::DFSCreate(Stack* order)
+void Graph::PrintInfo() const
 {
-	if (!dfs)
-	{
-		dfs = new DFS(*this, order);
-		 
-	}
+    std::cout << m_NumOfVertices << " " << m_NumOfEdges;
 }
 
-Stack Graph::DFSWithFinish()
+void Graph::DFSCreate(Stack* order)
 {
-	DFSCreate();
-
-	return dfs->GetFinishOrder();
+	if (!m_DFS)
+	{
+        m_DFS = new DFS(*this, order);
+		 
+	}
 }
 
 void Graph::DFS::Run()
 {
 	for (int i = 0; i < m_Graph.m_NumOfVertices; i++)
 	{
-		m_Color[i] = vertesType::white;
+		m_Color[i] = vertexType::white;
 	}
 
 	for (int i = 1; i <= m_Graph.m_NumOfVertices; i++)
 	{
-		if (m_Color[i-1] == vertesType::white)
+		if (m_Color[i-1] == vertexType::white)
 		{
 			Visit(i);
 		}
@@ -99,17 +100,17 @@ void Graph::DFS::Run()
 
 void Graph::DFS::Run(Stack* io_Order)
 {
-	int v;
+    Vertex v;
 	for (int i = 0; i < m_Graph.m_NumOfVertices; i++)
 	{
-		m_Color[i] = vertesType::white;
+		m_Color[i] = vertexType::white;
 	}
 
 	while (!io_Order->empty())
 	{
 		v = io_Order->top();
 		io_Order->pop();
-		if (m_Color[v-1] == vertesType::white)
+		if (m_Color[v-1] == vertexType::white)
 		{
 			m_Graph.m_ComponentsCount++;
 			Visit(v, m_Graph.m_ComponentsCount, SECONDDFS);
@@ -117,26 +118,26 @@ void Graph::DFS::Run(Stack* io_Order)
 	}
 }
 
-void Graph::DFS::Visit(int i_U, int root = NULLROOT, bool second = !SECONDDFS)
+void Graph::DFS::Visit(Vertex i_U, Vertex root, bool second)
 {
-	if (second)
+    m_Color[i_U - 1] = vertexType::gray;
+	for (auto& pair : m_Graph.GetAdjList(i_U))
 	{
-		m_Graph.m_ComponentsOrder.push(i_U);
-	}
-
-	m_Color[i_U - 1] = vertesType::gray;
-	for (auto& pair : m_Graph.m_Neighborlist[i_U - 1])
-	{
-		if (m_Color[pair.first - 1] == vertesType::white)
+		if (m_Color[pair.first - 1] == vertexType::white)
 		{
 			pair.second = edgeType::tree;
 			Visit(pair.first, root, second);
 		}
+        else if (m_Color[pair.first - 1] == vertexType::gray)
+        {
+            pair.second = edgeType::back;
+        }
 	}
 
-	m_Color[i_U - 1] = vertesType::black;
+	m_Color[i_U - 1] = vertexType::black;
 	if (second)
 	{
+        m_Graph.m_ComponentsOrder.push(i_U);
 		m_Graph.m_ComponentsArray[i_U - 1] = root;
 	}
 	else
@@ -149,48 +150,56 @@ void Graph::CopyGraph(const Graph& i_Graph, bool i_transpose)
 {
 	if (!i_transpose)
 	{
-		for (int i = 0; i < m_NumOfVertices; i++)
+		for (int i = 1; i <= m_NumOfVertices; i++)
 		{
-			m_Neighborlist[i] = std::move(i_Graph.m_Neighborlist[i]);
+            GetAdjList(i) = std::move(i_Graph.GetAdjList(i));
 		}
 	}
 	else
 	{
-		for (int i = 0; i < m_NumOfVertices; i++)
+		for (int i = 1; i <= m_NumOfVertices; i++)
 		{
-			for (const auto& pair : i_Graph.m_Neighborlist[i])
+			for (const auto& pair : i_Graph.GetAdjList(i))
 			{
-				AddEdge(pair.first, i+1);
+				AddEdge(pair.first, i);
 			}
 		}
 	}
 }
 
-Edge* Graph::GetInput(int& n, int& m)
+Edges Graph::GetInput(int& n, int& m)
 {
 	try
 	{
 		std::cout << "Please enter number of vertices: ";
 		std::cin >> n;
-		if (n <= 0)
+		if (n < 0)
 		{
 			throw EXCEPTION;
 		}
 		std::cout << "Please enter number of edges: ";
 		std::cin >> m;
-		if (m < 0 || m > n* (n - 1))
+		if (m < 0 || m > (n*(n - 1))/2)
 		{
 			throw EXCEPTION;
 		}
-		Edge* edges = new Edge[m];
+		Edges edges;
+        Edge edge;
+        if (m > 0)
+        {
+            std::cout << "Please enter edges:\n";
+        }
 		for (int i = 0; i < m; i++)
 		{
-			std::cin >> edges[i].in >> edges[i].out;
-			if (edges[i].in > n || edges[i].out > n || edges[i].in == edges[i].out)
-			{
-				delete[] edges;
-				throw EXCEPTION;
-			}
+			std::cin >> edge.in >> edge.out;
+			if (edge.in > n || edge.out > n || edge.in == edge.out)
+            {
+                throw EXCEPTION;
+            }
+            else
+            {
+                edges.push(edge);
+            }
 		}
 		return edges;
 	}
@@ -201,17 +210,17 @@ Edge* Graph::GetInput(int& n, int& m)
 	}
 }
 
-int* Graph::GetComponetsArray()
+int* Graph::GetComponentsArray() const
 {
 	return m_ComponentsArray;
 }
 
-Queue Graph::GetComponetsOrder()
+Queue Graph::GetComponentsOrder() const
 {
 	return m_ComponentsOrder;
 }
 
-int Graph::GetComponetsCount()
+int Graph::GetComponentsCount() const
 {
 	return m_ComponentsCount;
 }

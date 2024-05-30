@@ -1,21 +1,14 @@
-#include <iostream>
-#include <stdlib.h>
-#include "Graph.h"
-#include "Using.h"
 #include "SuperGraph.h"
 
 int main() 
 {
 	int n, m;
-	Edge* edges = Graph::GetInput(n, m);
-	Graph myGraph(n, m);
-
-	myGraph.Fill(edges, m);
-	std::cout << std::endl;
-
+	Edges edges = Graph::GetInput(n, m);
+	Graph myGraph(n);
+	myGraph.Fill(edges);
 	SuperGraph mySuperGraph(myGraph);
-
-	mySuperGraph.printStats();
+    std::cout << std::endl;
+	mySuperGraph.PrintInfo();
 
 	return 0;
 }
