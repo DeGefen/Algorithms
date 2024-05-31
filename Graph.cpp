@@ -179,13 +179,13 @@ Edges Graph::GetInput(int& n, int& m)
 	{
 		std::cout << "Please enter number of vertices: ";
 		std::cin >> n;
-		if (n < 0)
+        if (n < 0 || std::cin.fail())
 		{
-			throw EXCEPTION;
+            throw EXCEPTION;
 		}
 		std::cout << "Please enter number of edges: ";
 		std::cin >> m;
-		if (m < 0 || m > (n*(n - 1))/2)
+		if (m < 0 || m > (n*(n - 1)) || std::cin.fail())
 		{
 			throw EXCEPTION;
 		}
